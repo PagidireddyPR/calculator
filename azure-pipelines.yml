@@ -1,22 +1,37 @@
+trigger:
+- main  # Adjust this to your desired branch
+
 variables:
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'dotnetapp-sc'
-    appType: 'webApp'
-    appName: 'dotnet1-webapp'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
-    deploymentMethod: 'auto'
   buildConfiguration: 'Release'
 
-steps:
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: true
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'dotnetapp-sc'
-    appType: 'webAppLinux'
-    appName: 'dotnet1-webapp'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+jobs:
+- job: BuildAndDeploy
+  displayName: 'Build and Deploy .NET Core App'
+  pool:
+    vmImage: 'windows-latest'  # Adjust as necessary
 
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish .NET Core Project'
+    inputs:
+      command: 'publish'
+      publishWebProjects: true
+      arguments: '--configuration $(buildConfiguration) --output $(System.DefaultWorkingDirectory)/output'
+
+  - task: AzureWebApp@1
+    displayName: 'Deploy to Azure Web App (WebApp)'
+    inputs:
+      azureSubscription: 'dotnetapp-sc'
+      appType: 'webApp'
+      appName: 'dotnet1-webapp'
+      package: '$(System.DefaultWorkingDirectory)/output/**/*.zip'
+      deploymentMethod: 'auto'
+
+  - task: AzureWebApp@1
+    displayName: 'Deploy to Azure Web App (WebAppLinux)'
+    inputs:
+      azureSubscription: 'dotnetapp-sc'
+      appType: 'webAppLinux'
+      appName: 'dotnet1-webapp'
+      package: '$(System.DefaultWorkingDirectory)/output/**/*.zip'
+      deploymentMethod: 'auto'
