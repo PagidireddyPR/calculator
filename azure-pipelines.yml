@@ -21,9 +21,12 @@ jobs:
   - task: AzureWebApp@1
     displayName: 'Deploy to Azure Web App (WebApp)'
     inputs:
-      azureSubscription: 'dotnetapp-sc'
+      azureSubscription: 'Free Trial(11b57205-2c05-4853-b249-3283605d4295)'  # Ensure this is correct
       appType: 'webApp'
       appName: 'dotnet1-webapp'
+      deployToSlotOrASE: true
+      resourceGroupName: 'dotnetapp-rg'
+      slotName: 'production'
       package: '$(System.DefaultWorkingDirectory)/output/**/*.zip'
       deploymentMethod: 'auto'
 
